@@ -481,13 +481,30 @@ function setBusy(isBusy) {
 async function loadStatus() {
   try {
     const result = await request("/api/status");
+    if (result.status >= 400 || !result.body?.modeSupport) {
+      throw new Error(`Status endpoint returned ${result.status}`);
+    }
+
     status.textContent = `${result.body.price} on ${result.body.network} | fee sponsor: ${
       result.body.modeSupport.feeSponsoredPull ? "configured" : "not configured"
     }`;
+  } catch (error) {
+    status.textContent = "Demo API unavailable";
+    write(error.message);
+    return;
+  }
+
+  try {
     await loadWallets();
+  } catch (error) {
+    wallets.textContent = "Wallet data could not be loaded.";
+    write(error.message);
+  }
+
+  try {
     await discoverMcpTools();
   } catch (error) {
-    status.textContent = "Demo server unavailable";
+    mcpToolList.textContent = "MCP tools could not be loaded.";
     write(error.message);
   }
 }

@@ -10,11 +10,11 @@
     <main class="shell">
       <section class="hero">
         <p class="eyebrow">Stellar MPP Demo</p>
-        <h1>Why should builders care about MPP?</h1>
+        <h1>MPP on Stellar</h1>
         <p class="lede">
-          MPP turns payment into a protocol-level capability: apps and agents can
-          discover paid resources, receive a standard challenge, pay on Stellar,
-          and continue the same API or MCP tool call.
+          A small demo of paid API and MCP tool calls: the server returns an
+          HTTP 402 challenge, the client pays on Stellar, and the original
+          request continues with proof of payment.
         </p>
         <div class="hero-actions">
           <a class="button-link" href="#explorer-workbench">Try the paid MCP demo</a>
@@ -25,27 +25,27 @@
 
       <section class="value-grid">
         <article class="value-card">
-          <p class="eyebrow">So what?</p>
-          <h2>APIs can sell tiny units of value</h2>
+          <p class="eyebrow">Charge mode</p>
+          <h2>Pay for one request</h2>
           <p>
-            A server can say “this response costs 0.00001 XLM” without building
-            accounts, invoices, API-key billing, or a separate checkout flow.
+            The protected route returns a standard payment challenge. The client
+            signs a Stellar payment credential and retries the same request.
           </p>
         </article>
         <article class="value-card">
-          <p class="eyebrow">For agents</p>
-          <h2>Tools become directly monetizable</h2>
+          <p class="eyebrow">MCP tools</p>
+          <h2>Pay inside the tool call</h2>
           <p>
-            MCP tools can be free for lookup and paid for deeper analysis. The
-            payment challenge travels inside the tool call metadata.
+            Free tools return immediately. Paid tools return an MPP challenge in
+            MCP metadata, then run after charge or channel payment.
           </p>
         </article>
         <article class="value-card">
-          <p class="eyebrow">For scale</p>
-          <h2>Channels make repeated calls practical</h2>
+          <p class="eyebrow">Channel mode</p>
+          <h2>Reuse one funded channel</h2>
           <p>
-            Charge mode is great for one request. Channel mode lets agents keep
-            using paid tools through vouchers without a new on-chain tx per call.
+            Deposit and close happen on-chain. Individual paid tool calls use
+            off-chain cumulative vouchers.
           </p>
         </article>
       </section>
@@ -53,15 +53,15 @@
       <section class="story-panel">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Demo Storyline</p>
-            <h2>Free lookup → paid challenge → useful result → repeat with channel</h2>
+            <p class="eyebrow">Demo Flow</p>
+            <h2>402 challenge → Stellar payment → unlocked result → channel reuse</h2>
           </div>
         </div>
 
         <div class="story-grid">
           <article class="story-card">
             <span class="step">1</span>
-            <h3>One paid API request</h3>
+            <h3>Paid API request</h3>
             <p>
               Show the raw protocol: the server returns an MPP payment challenge,
               the client pays on Stellar, and the original request unlocks.
@@ -74,7 +74,7 @@
 
           <article class="story-card featured">
             <span class="step">2</span>
-            <h3>One channel, many tool calls</h3>
+            <h3>Channel session</h3>
             <p>
               Activate the already-open Testnet channel once, then run selected
               paid Explorer MCP tools through off-chain vouchers.
@@ -87,12 +87,12 @@
 
           <article class="story-card">
             <span class="step">3</span>
-            <h3>Builder horizon</h3>
+            <h3>Where this fits</h3>
             <p>
-              The point is not this explorer. The point is paid data feeds,
-              premium devtools, analytics APIs, and agent-accessible services.
+              The explorer is just a concrete example. The same flow can wrap
+              data feeds, devtools, analytics APIs, and agent-accessible services.
             </p>
-            <a class="button-link secondary-link" href="#builder-ideas">See build ideas</a>
+            <a class="button-link secondary-link" href="#builder-ideas">See examples</a>
           </article>
         </div>
       </section>
@@ -188,8 +188,8 @@
       <section class="builder-panel" id="builder-ideas">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">What Can Builders Do With This?</p>
-            <h2>MPP makes paid capabilities composable</h2>
+            <p class="eyebrow">Use Cases</p>
+            <h2>What this can be used for</h2>
           </div>
         </div>
         <div class="builder-grid">
