@@ -1,0 +1,38 @@
+{
+  "name": "stellar-mpp-demo",
+  "version": "1.0.0",
+  "description": "A live-coding demo for MPP payments on Stellar.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "server": "node src/server.js",
+    "client": "node src/client.js",
+    "probe": "node src/probe.js",
+    "keys": "node src/keys.js",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@stellar/mpp": "^0.5.1",
+    "@stellar/stellar-sdk": "^15.1.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mppx": "^0.4.12",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0"
+  },
+  "overrides": {
+    "axios": "^1.16.0",
+    "ip-address": "^10.2.0"
+  }
+}

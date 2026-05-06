@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stellar MPP Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Stellar MPP Demo</p>
+        <h1>Why should builders care about MPP?</h1>
+        <p class="lede">
+          MPP turns payment into a protocol-level capability: apps and agents can
+          discover paid resources, receive a standard challenge, pay on Stellar,
+          and continue the same API or MCP tool call.
+        </p>
+        <div class="hero-actions">
+          <a class="button-link" href="#explorer-workbench">Try the paid MCP demo</a>
+          <button class="secondary" data-action="challenge">Show raw 402 challenge</button>
+        </div>
+        <div class="meta" id="status">Loading demo status...</div>
+      </section>
+
+      <section class="value-grid">
+        <article class="value-card">
+          <p class="eyebrow">So what?</p>
+          <h2>APIs can sell tiny units of value</h2>
+          <p>
+            A server can say “this response costs 0.00001 XLM” without building
+            accounts, invoices, API-key billing, or a separate checkout flow.
+          </p>
+        </article>
+        <article class="value-card">
+          <p class="eyebrow">For agents</p>
+          <h2>Tools become directly monetizable</h2>
+          <p>
+            MCP tools can be free for lookup and paid for deeper analysis. The
+            payment challenge travels inside the tool call metadata.
+          </p>
+        </article>
+        <article class="value-card">
+          <p class="eyebrow">For scale</p>
+          <h2>Channels make repeated calls practical</h2>
+          <p>
+            Charge mode is great for one request. Channel mode lets agents keep
+            using paid tools through vouchers without a new on-chain tx per call.
+          </p>
+        </article>
+      </section>
+
+      <section class="story-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Demo Storyline</p>
+            <h2>Free lookup → paid challenge → useful result → repeat with channel</h2>
+          </div>
+        </div>
+
+        <div class="story-grid">
+          <article class="story-card">
+            <span class="step">1</span>
+            <h3>One paid API request</h3>
+            <p>
+              Show the raw protocol: the server returns an MPP payment challenge,
+              the client pays on Stellar, and the original request unlocks.
+            </p>
+            <div class="button-row">
+              <button class="secondary" data-action="challenge">Show 402</button>
+              <button data-action="pay-pull">Pay + unlock</button>
+            </div>
+          </article>
+
+          <article class="story-card featured">
+            <span class="step">2</span>
+            <h3>One channel, many tool calls</h3>
+            <p>
+              Activate the already-open Testnet channel once, then run selected
+              paid Explorer MCP tools through off-chain vouchers.
+            </p>
+            <div class="button-row">
+              <button class="secondary" data-action="channel-open">Inspect channel</button>
+              <button data-action="mcp-workbench-channel-session">Activate session</button>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <span class="step">3</span>
+            <h3>Builder horizon</h3>
+            <p>
+              The point is not this explorer. The point is paid data feeds,
+              premium devtools, analytics APIs, and agent-accessible services.
+            </p>
+            <a class="button-link secondary-link" href="#builder-ideas">See build ideas</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="wallet-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Dev Wallets</p>
+            <h2>Local demo roles</h2>
+          </div>
+          <button class="secondary" data-action="wallets">Refresh wallets</button>
+        </div>
+        <div class="wallet-grid" id="wallets">Loading wallets...</div>
+      </section>
+
+      <section class="section-heading compact">
+        <div>
+          <p class="eyebrow">Stellar Explorer MCP</p>
+          <h2>Free lookup, paid account analysis, paid transaction explanation</h2>
+        </div>
+      </section>
+
+      <section class="mcp-workbench" id="explorer-workbench">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Explorer Workbench</p>
+            <h2>Choose a Stellar explorer tool, then pay if needed</h2>
+          </div>
+          <div class="mode-toggle" aria-label="MCP tool payment actions">
+            <button class="secondary" data-action="mcp-workbench-discover">Discover tools</button>
+            <button class="secondary" data-action="mcp-workbench-challenge">Try selected without payment</button>
+            <button class="secondary" data-action="mcp-workbench-channel-session">Activate channel session</button>
+            <button data-action="mcp-workbench-run">Run selected tool</button>
+          </div>
+        </div>
+
+        <div class="mcp-layout">
+          <aside class="tool-browser">
+            <p class="wallet-role">Available MCP tools</p>
+            <div id="mcp-tool-list" class="tool-list">Click “Discover tools” to load MCP tools.</div>
+          </aside>
+
+          <section class="tool-runner" aria-live="polite">
+            <div class="flow-steps" id="mcp-flow">
+              <span class="flow-step active">1. Select tool</span>
+              <span class="flow-step">2. Get challenge</span>
+              <span class="flow-step">3. Pay</span>
+              <span class="flow-step">4. Use result</span>
+            </div>
+
+            <div class="selected-tool">
+              <div>
+                <p class="eyebrow">Selected MCP tool</p>
+                <h3 id="mcp-selected-name">analyze_account_risk</h3>
+              </div>
+              <div class="payment-controls">
+                <label for="mcp-payment-mode">Payment rail</label>
+                <select id="mcp-payment-mode">
+                  <option value="charge">Charge: pay this call on-chain</option>
+                  <option value="channel">Channel: use active channel session</option>
+                </select>
+                <label for="mcp-account-input">Account input</label>
+                <input
+                  id="mcp-account-input"
+                  placeholder="Optional G... public key; blank uses buyer wallet"
+                />
+                <label for="mcp-limit-input">Transaction limit</label>
+                <input id="mcp-limit-input" min="1" max="10" type="number" value="3" />
+                <p id="mcp-status-line">Choose a tool from the list, then run it.</p>
+                <p id="mcp-session-line" class="session-line">Channel session: not activated in this UI.</p>
+              </div>
+            </div>
+
+            <div class="mcp-result-grid">
+              <article class="result-panel">
+                <p class="wallet-role">Tool result</p>
+                <div id="mcp-result" class="pretty-result">
+                  Explorer output will appear here after you run a tool.
+                </div>
+              </article>
+
+              <article class="result-panel">
+                <p class="wallet-role">Payment proof</p>
+                <div id="mcp-receipt" class="pretty-result muted">
+                  No receipt yet.
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="builder-panel" id="builder-ideas">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">What Can Builders Do With This?</p>
+            <h2>MPP makes paid capabilities composable</h2>
+          </div>
+        </div>
+        <div class="builder-grid">
+          <article>
+            <h3>Paid data feeds</h3>
+            <p>Markets, ledgers, identity, risk, compliance, or simulation data sold per request.</p>
+          </article>
+          <article>
+            <h3>Premium developer tools</h3>
+            <p>Explainers, traces, audits, contract analysis, account diagnostics, or testnet helpers.</p>
+          </article>
+          <article>
+            <h3>Agent service marketplaces</h3>
+            <p>Agents can discover paid tools, pay tiny amounts, and continue their task automatically.</p>
+          </article>
+          <article>
+            <h3>Usage-based infrastructure</h3>
+            <p>RPC, indexing, simulation, notifications, or batch jobs with protocol-native payment.</p>
+          </article>
+          <article>
+            <h3>Channel-based sessions</h3>
+            <p>High-frequency paid calls without turning every tool use into a new on-chain tx.</p>
+          </article>
+          <article>
+            <h3>No checkout detour</h3>
+            <p>The payment challenge is part of the request or tool call, not a separate product flow.</p>
+          </article>
+        </div>
+      </section>
+
+      <details class="advanced-panel">
+        <summary>Advanced protocol controls</summary>
+        <p>
+          These controls are useful when you want to explain the mechanics, but
+          they are not the main meeting story.
+        </p>
+        <div class="advanced-grid">
+          <button data-action="free">Call free API route</button>
+          <button data-action="challenge">Show raw 402</button>
+          <button data-action="pay-pull">Charge pull payment</button>
+          <button data-action="pay-push">Charge push payment</button>
+          <button data-action="channel-open">Inspect channel</button>
+          <button data-action="channel-request">Sign channel voucher</button>
+          <button data-action="channel-state">Read channel state</button>
+          <button class="danger" data-action="channel-close">Close channel</button>
+          <button data-action="mcp-tools">List MCP tools as JSON</button>
+          <button data-action="mcp-free">Run default free MCP tool</button>
+          <button data-action="mcp-no-payment">Show MCP payment challenge</button>
+          <button data-action="mcp-charge">Pay selected MCP tool with charge</button>
+          <button data-action="mcp-channel">Pay selected MCP tool with channel</button>
+        </div>
+      </details>
+
+      <section class="output-card">
+        <div class="output-header">
+          <h2>Demo output</h2>
+          <button class="secondary" data-action="clear">Clear</button>
+        </div>
+        <pre id="output">Click a demo step to begin.</pre>
+      </section>
+
+      <section class="explain">
+        <h2>Protocol notes</h2>
+        <ul>
+          <li>Charge pull: client signs, server submits, optional fee payer can sponsor fees.</li>
+          <li>Charge push: client signs and submits, then proves payment with a tx hash.</li>
+          <li>Channel mode: deposit and close are on-chain; each request signs a cumulative voucher verified through a read-only Soroban contract call.</li>
+          <li>Stellar Explorer MCP uses free lookup tools and paid analysis tools with payment challenges inside MCP metadata.</li>
+          <li>Secrets stay in the local server. The browser controls demo wallets and actions.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
