@@ -4,6 +4,8 @@ A live-coding demo that builds a paid API which answers with
 `402 Payment Required`, then lets a client pay through MPP on Stellar Testnet.
 The root URL serves a small frontend so the full flow is visible.
 
+Live demo: https://stellar-mpp-demo-six.vercel.app
+
 The app is a small protocol lab. Charge mode runs real Stellar Testnet
 payments. Channel mode uses a deployed one-way channel contract on Testnet:
 vouchers are off-chain, and close settlement is on-chain.

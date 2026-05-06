@@ -1,7 +1,7 @@
 {
   "name": "stellar-mpp-demo",
   "version": "1.0.0",
-  "description": "A live-coding demo for MPP payments on Stellar.",
+  "description": "A live Stellar Testnet demo for Machine Payments Protocol charge, channel, and paid MCP tool flows.",
   "private": true,
   "type": "module",
   "engines": {
@@ -15,7 +15,13 @@
     "keys": "node src/keys.js",
     "lint": "eslint ."
   },
-  "keywords": [],
+  "keywords": [
+    "stellar",
+    "mpp",
+    "machine-payments",
+    "mcp",
+    "soroban"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

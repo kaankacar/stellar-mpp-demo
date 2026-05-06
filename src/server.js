@@ -491,12 +491,16 @@ app.post("/api/mcp/channel/session", async (_req, res, next) => {
   }
 });
 
-app.listen(config.port, () => {
-  console.log(`Stellar MPP demo server: http://localhost:${config.port}`);
-  console.log(`Paid route: http://localhost:${config.port}/api/paid-insight`);
-  console.log(`Price: ${config.amount} ${config.tokenLabel}`);
-  console.log(`Network: ${config.network}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(config.port, () => {
+    console.log(`Stellar MPP demo server: http://localhost:${config.port}`);
+    console.log(`Paid route: http://localhost:${config.port}/api/paid-insight`);
+    console.log(`Price: ${config.amount} ${config.tokenLabel}`);
+    console.log(`Network: ${config.network}`);
+  });
+}
+
+export default app;
 
 async function describeWallet({ role, label, publicKey, purpose, canFund, missingReason }) {
   const balance = publicKey ? await loadNativeBalance(publicKey) : null;
