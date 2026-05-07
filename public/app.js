@@ -40,8 +40,17 @@ function write(value) {
   output.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
 }
 
-/** Resets the JSON output panel plus MCP workbench UI (browser-side only). Server MPP stores are unchanged — restart Node to clear replay/credential memory. */
-function resetDemoWorkbenchAndOutput() {
+/** Resets the JSON output panel and MCP workbench UI, and clears server-side MPP in-memory replay stores (no wallet / chain reset). */
+async function resetDemoWorkbenchAndOutput() {
+  try {
+    const res = await fetch("/api/demo/clear-mpp-stores", { method: "POST" });
+    if (!res.ok) {
+      console.warn("clear-mpp-stores failed", res.status);
+    }
+  } catch {
+    // Server unreachable — still reset visible UI.
+  }
+
   channelSessionActive = false;
   mcpPaymentMode.value = "charge";
   setMcpFlow(0);
@@ -749,7 +758,7 @@ async function runAction(action) {
     }
 
     if (action === "clear") {
-      resetDemoWorkbenchAndOutput();
+      await resetDemoWorkbenchAndOutput();
     }
   } catch (error) {
     write({

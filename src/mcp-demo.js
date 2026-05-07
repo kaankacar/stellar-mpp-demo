@@ -9,7 +9,6 @@ import {
 } from "@stellar/mpp/charge/server";
 import {
   Mppx as ChannelMppx,
-  Store as ChannelStore,
   getChannelState,
   stellar as channelServerStellar,
 } from "@stellar/mpp/channel/server";
@@ -17,11 +16,13 @@ import { stellar as chargeClientStellar } from "@stellar/mpp/charge/client";
 import { stellar as channelClientStellar } from "@stellar/mpp/channel/client";
 import { McpClient } from "mppx/mcp-sdk/client";
 import { Transport as MppxTransport } from "mppx/server";
-import { Store } from "mppx";
 import * as z from "zod/v4";
+import { createClearableMemoryStore } from "./clearable-mpp-store.js";
 
-const mcpChannelServerStore = ChannelStore.memory();
-const mcpChannelClientStore = Store.memory();
+const mcpChannelServerBacking = createClearableMemoryStore();
+const mcpChannelClientBacking = createClearableMemoryStore();
+const mcpChannelServerStore = mcpChannelServerBacking.store;
+const mcpChannelClientStore = mcpChannelClientBacking.store;
 
 const TOOLS = [
   {
@@ -55,6 +56,11 @@ const TOOLS = [
     }),
   },
 ];
+
+export function clearMcpDemoStores() {
+  mcpChannelServerBacking.clear();
+  mcpChannelClientBacking.clear();
+}
 
 export async function listMcpTools(config) {
   return withMcpClient(config, async ({ client }) => client.listTools());

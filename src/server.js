@@ -1,11 +1,10 @@
 import express from "express";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { payment } from "mppx/express";
-import { Mppx, Store, stellar } from "@stellar/mpp/charge/server";
+import { Mppx, stellar } from "@stellar/mpp/charge/server";
 import {
   getChannelState,
   Mppx as ChannelMppx,
-  Store as ChannelStore,
   stellar as channelStellar,
 } from "@stellar/mpp/channel/server";
 import { clientConfig, serverConfig } from "./config.js";
@@ -16,9 +15,11 @@ import {
   callPaidMcpToolWithChannel,
   callPaidMcpToolWithCharge,
   callPaidMcpToolWithoutPayment,
+  clearMcpDemoStores,
   inspectMcpChannelSession,
   listMcpTools,
 } from "./mcp-demo.js";
+import { createClearableMemoryStore } from "./clearable-mpp-store.js";
 
 const config = serverConfig();
 const demoClient = clientConfig();
@@ -46,6 +47,17 @@ const channelFeePayer = config.recipientSecret
   ? { envelopeSigner: config.recipientSecret }
   : feePayer;
 
+const chargeStoreBacking = createClearableMemoryStore();
+const pushStoreBacking = createClearableMemoryStore();
+const channelStoreBacking = createClearableMemoryStore();
+
+function clearAllMppDemoMemoryStores() {
+  chargeStoreBacking.clear();
+  pushStoreBacking.clear();
+  channelStoreBacking.clear();
+  clearMcpDemoStores();
+}
+
 const mppx = Mppx.create({
   realm: config.realm,
   secretKey: config.secretKey,
@@ -57,7 +69,7 @@ const mppx = Mppx.create({
       network: config.network,
       rpcUrl: config.rpcUrl,
       feePayer,
-      store: Store.memory(),
+      store: chargeStoreBacking.store,
     }),
   ],
 });
@@ -72,12 +84,12 @@ const pushMppx = Mppx.create({
       decimals: config.decimals,
       network: config.network,
       rpcUrl: config.rpcUrl,
-      store: Store.memory(),
+      store: pushStoreBacking.store,
     }),
   ],
 });
 
-const channelStore = ChannelStore.memory();
+const channelStore = channelStoreBacking.store;
 const channelMppx =
   config.channelContract && channelCommitmentPublicKey
     ? ChannelMppx.create({
@@ -101,6 +113,21 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+app.post("/api/demo/clear-mpp-stores", (_req, res) => {
+  try {
+    clearAllMppDemoMemoryStores();
+    res.json({
+      ok: true,
+      message: "In-memory MPP replay stores cleared for this server process.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
 app.get("/api/status", (_req, res) => {
   res.json({
     name: "Stellar MPP Demo",
@@ -112,6 +139,7 @@ app.get("/api/status", (_req, res) => {
       wallets: "/api/wallets",
       channel: "/api/channel/state",
       mcp: "/api/mcp/tools",
+      clearMppStores: "/api/demo/clear-mpp-stores (POST)",
     },
     price: `${config.amount} ${config.tokenLabel}`,
     network: config.network,
