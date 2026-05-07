@@ -324,6 +324,8 @@ async function runTool(config, toolName, mode, args = {}) {
       tool: toolName,
       mode,
       paid: true,
+      mppPayerAccount: config.buyerPublicKey,
+      inspectedAccount: account,
       resultType: "account-risk",
       riskChecks: [
         check("target account exists", snapshot.target.exists),
@@ -345,6 +347,8 @@ async function runTool(config, toolName, mode, args = {}) {
       tool: toolName,
       mode,
       paid: true,
+      mppPayerAccount: config.buyerPublicKey,
+      inspectedAccount: account,
       resultType: "transaction-explanation",
       account,
       fallbackUsed: !args.account,

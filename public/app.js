@@ -207,7 +207,27 @@ function renderPaidToolResult(result, label) {
   mcpSelectedName.textContent = payload.tool ?? selectedMcpTool;
   mcpStatusLine.textContent = `Ran ${payload.tool ?? "paid tool"} with ${label}.`;
   setMcpFlow(3);
+  const payerContext = payload.mppPayerAccount
+    ? `
+    <div class="metric-grid payer-context">
+      <div class="metric">
+        <span>MPP payer (demo buyer)</span>
+        <strong>${escapeHtml(payload.mppPayerAccount)}</strong>
+      </div>
+      <div class="metric">
+        <span>Analyzed Horizon account</span>
+        <strong>${escapeHtml(
+          payload.inspectedAccount ??
+            payload.account ??
+            payload.target?.account ??
+            payload.accountLookup?.account ??
+            "—",
+        )}</strong>
+      </div>
+    </div>`
+    : "";
   mcpResult.innerHTML = `
+    ${payerContext}
     <div class="metric-grid">
       <div class="metric">
         <span>Tool</span>
@@ -237,6 +257,10 @@ function renderPaidToolResult(result, label) {
         <strong>${escapeHtml(receipt.challengeId ?? receipt.challenge?.id ?? "paid")}</strong>
       </div>
       <p class="callout">This receipt came back in MCP result metadata, not an HTTP header.</p>
+      <p class="callout">
+        The receipt proves the <strong>demo buyer / agent wallet</strong> paid MPP for this tool call.
+        The <strong>Account input</strong> field only chooses which address is fetched from Horizon—not who funded the micropayment.
+      </p>
     `
     : `<p class="callout">Tool succeeded, but no receipt metadata was returned.</p>`;
 }

@@ -216,42 +216,119 @@
           </div>
 
           <div class="snippet-block">
-            <p class="snippet-path">Charge pull — <code>src/server.js</code> · <code>app.get("/api/paid-insight", …)</code></p>
+            <p class="snippet-path">
+              Charge pull — <code>src/server.js</code> · <code>app.get("/api/paid-insight", …)</code>
+              (<strong>L135–154</strong>)
+            </p>
             <pre class="snippet-pre"><code class="language-javascript">app.get(
   "/api/paid-insight",
   // MPP: this middleware makes the route paid (HTTP 402 until Stellar payment succeeds).
   payment(mppx.charge, {
     amount: config.amount,
-    description: "…",
-    meta: { demo: "stellar-mpp-demo" },
+    description: "One premium AI-agent market insight",
+    meta: {
+      demo: "stellar-mpp-demo",
+    },
   }),
-  (_req, res) => res.json({ paid: true, insight: "…" }),
+  (_req, res) => {
+    res.json({
+      paid: true,
+      insight:
+        "Premium insight: charge mode is easiest to teach; channel mode is the scaling story for high-frequency agents.",
+      nextStep:
+        "Replace this route body with a real model call, MCP tool result, or paid data feed.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
 );</code></pre>
           </div>
 
           <div class="snippet-block">
-            <p class="snippet-path">Charge push — <code>src/server.js</code> · <code>/api/paid-insight-push</code></p>
+            <p class="snippet-path">
+              Charge push — <code>src/server.js</code> · <code>app.get("/api/paid-insight-push", …)</code>
+              (<strong>L157–177</strong>)
+            </p>
             <pre class="snippet-pre"><code class="language-javascript">app.get(
   "/api/paid-insight-push",
   // MPP: push charge — buyer submits the tx and proves with hash (no pull fee sponsor here).
   payment(pushMppx.charge, {
     amount: config.amount,
-    meta: { demo: "stellar-mpp-demo", mode: "push" },
+    description: "One premium AI-agent market insight via push mode",
+    meta: {
+      demo: "stellar-mpp-demo",
+      mode: "push",
+    },
   }),
-  (_req, res) => res.json({ paid: true, mode: "push" }),
+  (_req, res) => {
+    res.json({
+      paid: true,
+      mode: "push",
+      insight:
+        "Premium insight: push mode means the client submitted the transaction and sent the tx hash as proof.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
 );</code></pre>
           </div>
 
           <div class="snippet-block">
-            <p class="snippet-path">Channel — <code>src/server.js</code> · <code>/api/channel-paid-insight</code></p>
+            <p class="snippet-path">
+              Channel — <code>src/server.js</code> · <code>app.get("/api/channel-paid-insight", …)</code>
+              (<strong>L336–363</strong>)
+            </p>
             <pre class="snippet-pre"><code class="language-javascript">app.get(
   "/api/channel-paid-insight",
   channelMppx
     ? // MPP channel: authorize with a voucher (402 until valid commitment); settle on channel close.
-      payment(channelMppx.channel, { amount: config.amount, meta: { demo: "stellar-mpp-demo" } })
-    : (_req, res) => res.status(503).json({ error: "channel not configured" }),
-  (_req, res) => res.json({ paid: true, mode: "channel" }),
+      payment(channelMppx.channel, {
+        amount: config.amount,
+        description: "One premium AI-agent insight via MPP channel",
+        meta: {
+          demo: "stellar-mpp-demo",
+        },
+      })
+    : (_req, res) => {
+        res.status(503).json({
+          error:
+            "Real channel mode is not configured. Set CHANNEL_CONTRACT, COMMITMENT_SECRET, and COMMITMENT_PUBKEY.",
+        });
+      },
+  (_req, res) => {
+    res.json({
+      paid: true,
+      mode: "channel",
+      insight:
+        "Premium insight: this request was authorized by an off-chain cumulative channel commitment.",
+      settlement:
+        "No transaction was submitted for this request; the latest commitment can be closed on-chain.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
 );</code></pre>
+          </div>
+
+          <div class="snippet-block">
+            <p class="snippet-path">
+              Same patterns <strong>without MPP</strong> (conceptual sketch — not in repo)
+            </p>
+            <pre class="snippet-pre"><code class="language-javascript">// No payment protocol: every visitor gets the response (or you block with something else).
+app.get("/api/free-insight", (_req, res) => {
+  res.json({
+    paid: false,
+    insight: "Free preview: no cryptographic payment proof is required here.",
+  });
+});
+
+// Common API monetization without on-chain settlement: shared secret or subscription id.
+app.get("/api/premium-by-api-key", (req, res) => {
+  if (req.get("authorization") !== `Bearer ${process.env.API_KEY}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  res.json({
+    paid: true,
+    insight: "Gated by a secret the server knows — not by a Stellar / MPP receipt.",
+  });
+});</code></pre>
           </div>
 
           <p class="snippet-note">
@@ -262,7 +339,8 @@
           <div class="snippet-cli">
             <strong>Read the real file from the shell</strong> (run inside the project folder)
             <pre><code>grep -n 'paid-insight' src/server.js
-sed -n '125,190p' src/server.js</code></pre>
+sed -n '135,177p' src/server.js
+sed -n '336,364p' src/server.js</code></pre>
             <p>
               In Cursor or VS Code: <code>src/server.js</code> → <strong>Go to Line</strong> → type
               <strong>137</strong> (paid charge route with <code>payment(mppx.charge, …)</code>).
