@@ -567,11 +567,62 @@ pre {
   white-space: pre-wrap;
 }
 
-.snippet-pre {
+.mcp-workbench .code-snippet-panel {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: rgba(3, 7, 18, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.code-snippet-panel pre.snippet-pre {
   min-height: 0;
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
+  margin: 0.5rem 0 0;
+  background: #2d2d2d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.code-snippet-panel pre.snippet-pre code[class*="language-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.snippet-cli {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #b9c8dd;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.snippet-cli p {
+  margin: 0.65rem 0 0;
+  margin-bottom: 0;
+  color: #b9c8dd;
+  font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.snippet-cli pre code {
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+}
+
+.snippet-cli pre {
+  min-height: 0;
+  margin: 0.5rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: #030712;
+  color: #c8dbf5;
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .code-snippet-panel {

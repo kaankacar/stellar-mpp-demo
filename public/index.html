@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Stellar MPP Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -95,115 +100,6 @@
             <a class="button-link secondary-link" href="#builder-ideas">See examples</a>
           </article>
         </div>
-      </section>
-
-      <section class="code-snippet-panel" id="mpp-code-snippet">
-        <div class="section-heading compact">
-          <div>
-            <p class="eyebrow">Code walkthrough</p>
-            <h2>Exactly where this API becomes paid</h2>
-          </div>
-        </div>
-        <p class="snippet-lede">
-          Paid routes stay ordinary Express handlers. The gate is one extra middleware:
-          <code>payment(...)</code> from <code>mppx/express</code>. Requests without valid
-          credentials get <strong>HTTP 402</strong>; once the buyer pays on Stellar, MPP retries
-          the same handler.
-        </p>
-
-        <div class="snippet-block">
-          <p class="snippet-path">Import · <code>src/server.js</code> (~line 3)</p>
-          <pre class="snippet-pre"><code>import { payment } from "mppx/express";</code></pre>
-        </div>
-
-        <div class="snippet-block">
-          <p class="snippet-path">Charge route · <code>src/server.js</code> (~lines 135–153)</p>
-          <pre class="snippet-pre"><code>app.get(
-  "/api/paid-insight",
-  payment(mppx.charge, {
-    amount: config.amount,
-    description: "One premium AI-agent market insight",
-    meta: {
-      demo: "stellar-mpp-demo",
-    },
-  }),
-  (_req, res) => {
-    res.json({
-      paid: true,
-      insight:
-        "Premium insight: charge mode is easiest to teach; channel mode is the scaling story for high-frequency agents.",
-      nextStep:
-        "Replace this route body with a real model call, MCP tool result, or paid data feed.",
-      price: `${config.amount} ${config.tokenLabel}`,
-    });
-  },
-);</code></pre>
-        </div>
-
-        <div class="snippet-block">
-          <p class="snippet-path">
-            Push variant (buyer submits tx hash) · <code>src/server.js</code> (~lines 156–175)
-          </p>
-          <pre class="snippet-pre"><code>app.get(
-  "/api/paid-insight-push",
-  payment(pushMppx.charge, {
-    amount: config.amount,
-    description: "One premium AI-agent market insight via push mode",
-    meta: {
-      demo: "stellar-mpp-demo",
-      mode: "push",
-    },
-  }),
-  (_req, res) => {
-    res.json({
-      paid: true,
-      mode: "push",
-      insight:
-        "Premium insight: push mode means the client submitted the transaction and sent the tx hash as proof.",
-      price: `${config.amount} ${config.tokenLabel}`,
-    });
-  },
-);</code></pre>
-        </div>
-
-        <div class="snippet-block">
-          <p class="snippet-path">
-            Channel-paid route · <code>src/server.js</code> (~lines 334–361)
-          </p>
-          <pre class="snippet-pre"><code>app.get(
-  "/api/channel-paid-insight",
-  channelMppx
-    ? payment(channelMppx.channel, {
-        amount: config.amount,
-        description: "One premium AI-agent insight via MPP channel",
-        meta: {
-          demo: "stellar-mpp-demo",
-        },
-      })
-    : (_req, res) => {
-        res.status(503).json({
-          error:
-            "Real channel mode is not configured. Set CHANNEL_CONTRACT, COMMITMENT_SECRET, and COMMITMENT_PUBKEY.",
-        });
-      },
-  (_req, res) => {
-    res.json({
-      paid: true,
-      mode: "channel",
-      insight:
-        "Premium insight: this request was authorized by an off-chain cumulative channel commitment.",
-      settlement:
-        "No transaction was submitted for this request; the latest commitment can be closed on-chain.",
-      price: `${config.amount} ${config.tokenLabel}`,
-    });
-  },
-);</code></pre>
-        </div>
-
-        <p class="snippet-note">
-          MCP tools pay through the same primitives in-process; browser buttons call helpers that
-          attach MPP credentials before the MCP client retries (<code>src/mcp-demo.js</code>).
-        </p>
       </section>
 
       <section class="wallet-panel">
@@ -300,6 +196,79 @@
           </div>
           <pre id="output">Click a demo step to begin.</pre>
         </section>
+
+        <section class="code-snippet-panel" id="mpp-code-snippet">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Code</p>
+              <h2>Same code in the repo (syntax-highlighted)</h2>
+            </div>
+          </div>
+          <p class="snippet-lede">
+            After you see JSON above, this is the one middleware that turns a normal Express route
+            into a paid route: <code>payment(...)</code> from <code>mppx/express</code>. Unpaid
+            calls stop at <strong>HTTP 402</strong>.
+          </p>
+
+          <div class="snippet-block">
+            <p class="snippet-path">Import · <code>src/server.js</code></p>
+            <pre class="snippet-pre"><code class="language-javascript">import { payment } from "mppx/express";</code></pre>
+          </div>
+
+          <div class="snippet-block">
+            <p class="snippet-path">Charge pull — <code>src/server.js</code> · <code>app.get("/api/paid-insight", …)</code></p>
+            <pre class="snippet-pre"><code class="language-javascript">app.get(
+  "/api/paid-insight",
+  // MPP: this middleware makes the route paid (HTTP 402 until Stellar payment succeeds).
+  payment(mppx.charge, {
+    amount: config.amount,
+    description: "…",
+    meta: { demo: "stellar-mpp-demo" },
+  }),
+  (_req, res) => res.json({ paid: true, insight: "…" }),
+);</code></pre>
+          </div>
+
+          <div class="snippet-block">
+            <p class="snippet-path">Charge push — <code>src/server.js</code> · <code>/api/paid-insight-push</code></p>
+            <pre class="snippet-pre"><code class="language-javascript">app.get(
+  "/api/paid-insight-push",
+  // MPP: push charge — buyer submits the tx and proves with hash (no pull fee sponsor here).
+  payment(pushMppx.charge, {
+    amount: config.amount,
+    meta: { demo: "stellar-mpp-demo", mode: "push" },
+  }),
+  (_req, res) => res.json({ paid: true, mode: "push" }),
+);</code></pre>
+          </div>
+
+          <div class="snippet-block">
+            <p class="snippet-path">Channel — <code>src/server.js</code> · <code>/api/channel-paid-insight</code></p>
+            <pre class="snippet-pre"><code class="language-javascript">app.get(
+  "/api/channel-paid-insight",
+  channelMppx
+    ? // MPP channel: authorize with a voucher (402 until valid commitment); settle on channel close.
+      payment(channelMppx.channel, { amount: config.amount, meta: { demo: "stellar-mpp-demo" } })
+    : (_req, res) => res.status(503).json({ error: "channel not configured" }),
+  (_req, res) => res.json({ paid: true, mode: "channel" }),
+);</code></pre>
+          </div>
+
+          <p class="snippet-note">
+            Paid MCP tools reuse the same MPP client primitives in <code>src/mcp-demo.js</code> (in-memory
+            MCP + charge/channel transports).
+          </p>
+
+          <div class="snippet-cli">
+            <strong>Read the real file from the shell</strong> (run inside the project folder)
+            <pre><code>grep -n 'paid-insight' src/server.js
+sed -n '125,190p' src/server.js</code></pre>
+            <p>
+              In Cursor or VS Code: <code>src/server.js</code> → <strong>Go to Line</strong> → type
+              <strong>137</strong> (paid charge route with <code>payment(mppx.charge, …)</code>).
+            </p>
+          </div>
+        </section>
       </section>
 
       <section class="builder-panel" id="builder-ideas">
@@ -372,6 +341,13 @@
       </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script>
+      if (window.Prism) {
+        window.Prism.highlightAll();
+      }
+    </script>
     <script src="/app.js" type="module"></script>
   </body>
 </html>

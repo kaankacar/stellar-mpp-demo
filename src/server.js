@@ -134,6 +134,7 @@ app.get("/api/free-insight", (_req, res) => {
 
 app.get(
   "/api/paid-insight",
+  // MPP: this middleware makes the route paid (HTTP 402 until Stellar payment succeeds).
   payment(mppx.charge, {
     amount: config.amount,
     description: "One premium AI-agent market insight",
@@ -155,6 +156,7 @@ app.get(
 
 app.get(
   "/api/paid-insight-push",
+  // MPP: push charge — buyer submits the tx and proves with hash (no pull fee sponsor here).
   payment(pushMppx.charge, {
     amount: config.amount,
     description: "One premium AI-agent market insight via push mode",
@@ -334,7 +336,8 @@ app.post("/api/channel/open", (_req, res) => {
 app.get(
   "/api/channel-paid-insight",
   channelMppx
-    ? payment(channelMppx.channel, {
+    ? // MPP channel: authorize with a voucher (402 until valid commitment); settle on channel close.
+      payment(channelMppx.channel, {
         amount: config.amount,
         description: "One premium AI-agent insight via MPP channel",
         meta: {
