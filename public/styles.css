@@ -338,6 +338,14 @@ h2 {
   padding: 1.5rem;
 }
 
+.mcp-workbench .output-card {
+  margin-top: 1rem;
+  box-shadow: none;
+  border-radius: 22px;
+  background: rgba(3, 7, 18, 0.45);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .mode-toggle {
   display: flex;
   flex-wrap: wrap;
