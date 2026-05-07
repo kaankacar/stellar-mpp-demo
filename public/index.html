@@ -97,6 +97,115 @@
         </div>
       </section>
 
+      <section class="code-snippet-panel" id="mpp-code-snippet">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Code walkthrough</p>
+            <h2>Exactly where this API becomes paid</h2>
+          </div>
+        </div>
+        <p class="snippet-lede">
+          Paid routes stay ordinary Express handlers. The gate is one extra middleware:
+          <code>payment(...)</code> from <code>mppx/express</code>. Requests without valid
+          credentials get <strong>HTTP 402</strong>; once the buyer pays on Stellar, MPP retries
+          the same handler.
+        </p>
+
+        <div class="snippet-block">
+          <p class="snippet-path">Import · <code>src/server.js</code> (~line 3)</p>
+          <pre class="snippet-pre"><code>import { payment } from "mppx/express";</code></pre>
+        </div>
+
+        <div class="snippet-block">
+          <p class="snippet-path">Charge route · <code>src/server.js</code> (~lines 135–153)</p>
+          <pre class="snippet-pre"><code>app.get(
+  "/api/paid-insight",
+  payment(mppx.charge, {
+    amount: config.amount,
+    description: "One premium AI-agent market insight",
+    meta: {
+      demo: "stellar-mpp-demo",
+    },
+  }),
+  (_req, res) => {
+    res.json({
+      paid: true,
+      insight:
+        "Premium insight: charge mode is easiest to teach; channel mode is the scaling story for high-frequency agents.",
+      nextStep:
+        "Replace this route body with a real model call, MCP tool result, or paid data feed.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
+);</code></pre>
+        </div>
+
+        <div class="snippet-block">
+          <p class="snippet-path">
+            Push variant (buyer submits tx hash) · <code>src/server.js</code> (~lines 156–175)
+          </p>
+          <pre class="snippet-pre"><code>app.get(
+  "/api/paid-insight-push",
+  payment(pushMppx.charge, {
+    amount: config.amount,
+    description: "One premium AI-agent market insight via push mode",
+    meta: {
+      demo: "stellar-mpp-demo",
+      mode: "push",
+    },
+  }),
+  (_req, res) => {
+    res.json({
+      paid: true,
+      mode: "push",
+      insight:
+        "Premium insight: push mode means the client submitted the transaction and sent the tx hash as proof.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
+);</code></pre>
+        </div>
+
+        <div class="snippet-block">
+          <p class="snippet-path">
+            Channel-paid route · <code>src/server.js</code> (~lines 334–361)
+          </p>
+          <pre class="snippet-pre"><code>app.get(
+  "/api/channel-paid-insight",
+  channelMppx
+    ? payment(channelMppx.channel, {
+        amount: config.amount,
+        description: "One premium AI-agent insight via MPP channel",
+        meta: {
+          demo: "stellar-mpp-demo",
+        },
+      })
+    : (_req, res) => {
+        res.status(503).json({
+          error:
+            "Real channel mode is not configured. Set CHANNEL_CONTRACT, COMMITMENT_SECRET, and COMMITMENT_PUBKEY.",
+        });
+      },
+  (_req, res) => {
+    res.json({
+      paid: true,
+      mode: "channel",
+      insight:
+        "Premium insight: this request was authorized by an off-chain cumulative channel commitment.",
+      settlement:
+        "No transaction was submitted for this request; the latest commitment can be closed on-chain.",
+      price: `${config.amount} ${config.tokenLabel}`,
+    });
+  },
+);</code></pre>
+        </div>
+
+        <p class="snippet-note">
+          MCP tools pay through the same primitives in-process; browser buttons call helpers that
+          attach MPP credentials before the MCP client retries (<code>src/mcp-demo.js</code>).
+        </p>
+      </section>
+
       <section class="wallet-panel">
         <div class="section-heading">
           <div>
