@@ -40,6 +40,19 @@ function write(value) {
   output.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
 }
 
+/** Resets the JSON output panel plus MCP workbench UI (browser-side only). Server MPP stores are unchanged — restart Node to clear replay/credential memory. */
+function resetDemoWorkbenchAndOutput() {
+  channelSessionActive = false;
+  mcpPaymentMode.value = "charge";
+  setMcpFlow(0);
+  mcpStatusLine.textContent = "Choose a tool from the list, then run it.";
+  mcpSessionLine.textContent = "Channel session: not activated in this UI.";
+  mcpSessionLine.classList.remove("active");
+  mcpResult.textContent = "Explorer output will appear here after you run a tool.";
+  mcpReceipt.textContent = "No receipt yet.";
+  write("Click a demo step to begin.");
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -736,7 +749,7 @@ async function runAction(action) {
     }
 
     if (action === "clear") {
-      write("Click a demo step to begin.");
+      resetDemoWorkbenchAndOutput();
     }
   } catch (error) {
     write({

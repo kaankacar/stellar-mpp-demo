@@ -192,7 +192,14 @@
         <section class="output-card">
           <div class="output-header">
             <h2>Demo output</h2>
-            <button class="secondary" data-action="clear">Clear</button>
+            <button
+              class="secondary"
+              type="button"
+              data-action="clear"
+              title="Clears the JSON output panel and MCP workbench UI. In-memory MPP replay state resets only when you restart the Node server (npm run server)."
+            >
+              Clear output &amp; workbench
+            </button>
           </div>
           <pre id="output">Click a demo step to begin.</pre>
         </section>
